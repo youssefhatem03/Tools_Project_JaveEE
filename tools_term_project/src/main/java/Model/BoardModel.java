@@ -51,9 +51,14 @@ public class BoardModel {
         this.collaborators = users;
     }
 	
-////	@OneToMany(mappedBy="board", fetch=FetchType.EAGER)
-//    private List<ListModel> lists = new ArrayList<>();
+    
+	@OneToMany(mappedBy="board", fetch=FetchType.EAGER)
+	@JsonIgnore
+    private Set<ListModel> lists;
 	
+	
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<String> listNames;
 	
 	
 	public BoardModel(){}
@@ -102,4 +107,22 @@ public class BoardModel {
     	return this.collaboratorsUsernames;
     }
 
+    
+    public void setLists(Set<ListModel> lists) {
+    	this.lists = lists;
+    }
+    
+    public Set<ListModel> getLists() {
+    	return this.lists;
+    }
+    
+    
+    public void setListNames(Set<String> names) {
+    	this.listNames = names;
+    }
+    
+    public Set<String> getListNames(){
+    	return this.listNames;
+    }
+    
 }
