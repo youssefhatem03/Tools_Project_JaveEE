@@ -84,37 +84,7 @@ public class BoardController {
 	}
 	
 	
-	@PUT
-	@Path("/createList")
-	public Response addList(@QueryParam("boardName") String boardName, @QueryParam("listName") String listName) {
-		
-		String res = boardService.addList(boardName, listName);
-		
-		if(res.startsWith("List added successfully")) {
-			return Response.ok(res).build();
 
-		} else {
-            return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
-		}
-		
-		
-	}
-	
-	
-	@DELETE
-	@Path("/removeList")
-	public Response removeList(@QueryParam("boardName") String boardName, @QueryParam("listName") String listName){
-		
-		String res = boardService.removeList(boardName, listName);
-		
-		if (res.startsWith("List deleted successfully")) {
-			return Response.ok(res).build();
-
-		} else {
-            return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
-		}
-		
-	}
 	
 	
 	
