@@ -1,5 +1,6 @@
 package Service;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.ejb.Stateless;
@@ -8,6 +9,7 @@ import javax.persistence.PersistenceContext;
 
 import Model.BoardModel;
 import Model.ListModel;
+import Model.UserModel;
 
 @Stateless
 public class ListService {
@@ -18,6 +20,9 @@ public class ListService {
     private EntityManager EM;
 
     
+    public List<ListModel> getAllLists() {
+        return EM.createQuery("SELECT l FROM ListModel l", ListModel.class).getResultList();
+    }
     
 	
 	public String addList(String boardName, String listName) {
@@ -47,6 +52,7 @@ public class ListService {
 			
 			ListModel newList = new ListModel();
 			newList.setListName(listName);
+			newList.setBoardName(board.getBoardName());
 			EM.persist(newList);
 			
 			Set<ListModel> lists;
