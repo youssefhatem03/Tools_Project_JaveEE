@@ -5,6 +5,8 @@ import java.util.Set;
 import javax.ejb.Stateless;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Stateless
 @Entity
 public class CardModel {
@@ -17,8 +19,7 @@ public class CardModel {
 	@Column(unique=true)
 	private String cardName;
 	
-	@NotNull
-	@Column(unique=true)
+	@Column
 	private String cardDescription;
 	
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -27,8 +28,12 @@ public class CardModel {
 	@Column
 	private String listName;
 	
+	@Column
+	private String assignee;
+	
 	@ManyToOne
 	@JoinColumn(name="listId")
+	@JsonIgnore
 	private ListModel list;	
 	
 	
@@ -72,5 +77,13 @@ public class CardModel {
         this.list = list;
     }
 	
+    
+    public void setAssignee(String name) {
+    	this.assignee = name;
+    }
+    
+    public String getAssignee() {
+    	return this.assignee;
+    }
 	
 }

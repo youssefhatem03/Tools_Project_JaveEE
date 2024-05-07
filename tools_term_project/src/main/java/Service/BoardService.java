@@ -5,13 +5,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-
 import Controller.UserController;
 import Model.BoardModel;
 import Model.ListModel;
@@ -25,7 +24,6 @@ public class BoardService {
     @PersistenceContext(unitName = "hello")
     private EntityManager EM;
 
-    
     
     public String createBoard(BoardModel board) {
         String boardName = board.getBoardName();
