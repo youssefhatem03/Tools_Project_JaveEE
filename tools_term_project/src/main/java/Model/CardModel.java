@@ -16,7 +16,7 @@ public class CardModel {
 	private Long cardId;
 	
 	@NotNull
-	@Column(unique=true)
+	@Column
 	private String cardName;
 	
 	@Column

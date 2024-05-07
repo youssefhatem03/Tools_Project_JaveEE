@@ -45,7 +45,6 @@ public class CardController {
 	@GET
 	@Path("/getAllCards")
 	public List<CardModel> getAll(){
-		
 		try {
 			return cardService.getAll();
 		} catch (Exception e){
@@ -71,5 +70,58 @@ public class CardController {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
 	}
+	
+	
+	@PUT
+	@Path("/updateList")
+	public Response updateList(@QueryParam("boardName") String boardName,
+								@QueryParam("listName") String listName,
+								@QueryParam("newListName") String newListName,
+								@QueryParam("cardName") String cardName) {
+		
+		String res = cardService.changeList(boardName, listName, newListName, cardName);
+		if (res.startsWith("Card moved from list")) {
+			return Response.ok(res).build();
+
+		} else {
+            return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
+		}
+		
+	}
+	
+	
+	@PUT
+	@Path("/addDescription")
+	public Response addDescription(@QueryParam("boardName") String boardName,
+									@QueryParam("listName") String listName,
+									@QueryParam("cardName") String cardName,
+									@QueryParam("description") String desc) {
+		
+		String res = cardService.addDescription(boardName, listName, cardName, desc);
+		if (res.startsWith("Description added")) {
+			return Response.ok(res).build();
+		} else {
+            return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
+		}
+		
+	}
+	
+	@PUT
+	@Path("/addComment")
+	public Response addComment(@QueryParam("boardName") String boardName,
+									@QueryParam("listName") String listName,
+									@QueryParam("cardName") String cardName,
+									@QueryParam("comment") String comment) {
+		
+		String res = cardService.addComments(boardName, listName, cardName, comment);
+		if (res.startsWith("Comment added")) {
+			return Response.ok(res).build();
+		} else {
+            return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
+		}
+		
+	}
+	
+	
 	
 }
