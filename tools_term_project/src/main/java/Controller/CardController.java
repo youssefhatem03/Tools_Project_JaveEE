@@ -33,7 +33,10 @@ public class CardController {
 		
 		if (res.startsWith("Added Card")) {
 			return Response.ok(res).build();
-
+		} else if (res.startsWith("Board is not found")) {
+            return Response.status(Response.Status.NOT_FOUND).entity(res).build();
+		} else if (res.startsWith("This card is already in this list")) {
+            return Response.status(Response.Status.CONFLICT).entity(res).build(); 
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
@@ -65,7 +68,11 @@ public class CardController {
 		
 		if (res.startsWith("Added")) {
 			return Response.ok(res).build();
-
+		} else if (res.startsWith("card does not exist") || res.startsWith("no such user found")
+				|| res.startsWith("list not found in board")) {
+            return Response.status(Response.Status.NOT_FOUND).entity(res).build();	
+		} else if (res.startsWith("this user is already assigned to this card")) {
+            return Response.status(Response.Status.CONFLICT).entity(res).build(); 
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
@@ -80,9 +87,13 @@ public class CardController {
 								@QueryParam("cardName") String cardName) {
 		
 		String res = cardService.changeList(boardName, listName, newListName, cardName);
+		
 		if (res.startsWith("Card moved from list")) {
 			return Response.ok(res).build();
-
+		} else if (res.contains("does not exist")) {
+            return Response.status(Response.Status.NOT_FOUND).entity(res).build();		
+		} else if (res.startsWith("Card already exists in this list")) {
+            return Response.status(Response.Status.CONFLICT).entity(res).build(); 
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
@@ -100,6 +111,8 @@ public class CardController {
 		String res = cardService.addDescription(boardName, listName, cardName, desc);
 		if (res.startsWith("Description added")) {
 			return Response.ok(res).build();
+		} else if (res.contains("does not exist")) {
+            return Response.status(Response.Status.NOT_FOUND).entity(res).build();		
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
@@ -116,6 +129,8 @@ public class CardController {
 		String res = cardService.addComments(boardName, listName, cardName, comment);
 		if (res.startsWith("Comment added")) {
 			return Response.ok(res).build();
+		} else if (res.contains("does not exist")) {
+            return Response.status(Response.Status.NOT_FOUND).entity(res).build();		
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}

@@ -35,11 +35,14 @@ public class ListController {
 		
 		if(res.startsWith("List added successfully")) {
 			return Response.ok(res).build();
-
-		} else {
+		} else if (res.startsWith("Board does not exist")) {
+            return Response.status(Response.Status.NOT_FOUND).entity(res).build();
+		} else if (res.startsWith("A list with this name already exists")) {
+            return Response.status(Response.Status.CONFLICT).entity(res).build(); 
+		}
+		else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
-		
 		
 	}
 	
@@ -52,14 +55,15 @@ public class ListController {
 		
 		if (res.startsWith("List deleted successfully")) {
 			return Response.ok(res).build();
-
+		} else if (res.startsWith("Board does not exist")) {
+            return Response.status(Response.Status.NOT_FOUND).entity(res).build();
+		} else if (res.startsWith("No list with this name exists")) {
+            return Response.status(Response.Status.NOT_FOUND).entity(res).build();
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
 		
 	}
-	
-	
 	
 	
 	@GET
@@ -72,4 +76,7 @@ public class ListController {
 		}
 	}
 	
+	
 }
+
+

@@ -45,8 +45,8 @@ public class CardService {
 
             ListModel list =  EM.createQuery(                    
             		"SELECT l FROM ListModel l " +
-                            "WHERE l.listName = :listName", ListModel.class)
-                     .setParameter("listName", listName)
+                            "WHERE l.listName = :listName AND l.boardName = :boardName", ListModel.class)
+                     .setParameter("listName", listName).setParameter("boardName", boardName)
                      .getSingleResult();
 			
             
@@ -128,7 +128,7 @@ public class CardService {
       		}
       		
       		if (!board.getListNames().contains(listName)) {
-      			return "list not found in board " + board.getBoardName();
+      			return "list not found in board" + board.getBoardName();
       		}
       		
       		if (card.getAssignee() != null) {
@@ -355,15 +355,22 @@ public class CardService {
                             "WHERE c.cardName = :cardName", CardModel.class)
                      .setParameter("cardName", cardName)
                      .getSingleResult();
+
+            
+            if (!board.getCollaboratorsUsernames().contains(UserService.username) && !board.getTeamLeader().equals(UserService.username)) {
+            	return "You have no access to this board";
+            }
             
             
             if(!board.getListNames().contains(listName)) {
             	return "list: " + listName + " does not exist in board: " + boardName; 
             }
             
+            
             if(!list.getCardNames().contains(cardName)) {
             	return "card does not exist in this list: " + listName;
             }
+            
             
             Set<String> comments = card.getComments();
             comments.add(comment);
@@ -373,9 +380,7 @@ public class CardService {
             
             return "Comment added";
             
-            
-            
-    		
+                		
     	} catch (Exception e) {
     	    e.printStackTrace(); 
     	    return "Something went wrong: " + e.getMessage();
