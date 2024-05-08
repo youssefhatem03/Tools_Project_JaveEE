@@ -41,7 +41,10 @@ public class CardService {
       		if (cardName.isEmpty()) {
     			return "Please enter the card name";
     		}
-    		
+      		
+			BoardModel board = EM
+					.createQuery("SELECT b FROM BoardModel b WHERE b.boardName = :boardName", BoardModel.class)
+					.setParameter("boardName", boardName).getSingleResult();    		
 
             ListModel list =  EM.createQuery(                    
             		"SELECT l FROM ListModel l " +
@@ -49,7 +52,9 @@ public class CardService {
                      .setParameter("listName", listName).setParameter("boardName", boardName)
                      .getSingleResult();
 			
-            
+      		if (!board.getCollaboratorsUsernames().contains(UserService.username)) {
+      			return "You are not a collaborator or in board: " + board.getBoardName(); 
+      		}        
             
             if (list.getBoardName() == boardName) {
             	return "Board is not found";
@@ -127,6 +132,8 @@ public class CardService {
       			return "no such user found";
       		}
       		
+
+      		
       		if (!board.getListNames().contains(listName)) {
       			return "list not found in board" + board.getBoardName();
       		}
@@ -141,6 +148,10 @@ public class CardService {
       		if(board.getTeamLeader() == userName) {
       			return "cannot assign cards to the team leader";
       		}
+//      		
+//     		if (!board.getCollaboratorsUsernames().contains(UserService.username)) {
+//      			return "You are not a collaborator or in board: " + board.getBoardName(); 
+//      		}    
       		
       		if (!board.getCollaboratorsUsernames().contains(userName)) {
       			return "assignee is not a collaborator in board " + board.getBoardName(); 

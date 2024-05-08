@@ -39,8 +39,9 @@ public class ListController {
             return Response.status(Response.Status.NOT_FOUND).entity(res).build();
 		} else if (res.startsWith("A list with this name already exists")) {
             return Response.status(Response.Status.CONFLICT).entity(res).build(); 
-		}
-		else {
+		} else if (res.startsWith("You are not the Team Leader of this board, access denied")) {
+			return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
+		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
 		
@@ -59,6 +60,8 @@ public class ListController {
             return Response.status(Response.Status.NOT_FOUND).entity(res).build();
 		} else if (res.startsWith("No list with this name exists")) {
             return Response.status(Response.Status.NOT_FOUND).entity(res).build();
+		} else if (res.startsWith("You are not the Team Leader of this board, access denied")) {
+			return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}

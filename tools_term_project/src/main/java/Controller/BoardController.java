@@ -28,13 +28,13 @@ public class BoardController {
         if (res.startsWith("Board added successfully!")) {
             return Response.ok(res).build();
         } else if (res.equals("Board Name cannot be empty")) {
-            return Response.status(Response.Status.NOT_FOUND).entity(res).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
         } else if (res.equals("Board Name already exists!")) {
             return Response.status(Response.Status.CONFLICT).entity(res).build(); 
         } else if (res.equals("You must be signed in to create a board!")) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
         } else {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
         }
     }
 
@@ -68,9 +68,9 @@ public class BoardController {
         } else if (res.startsWith("No Board with such name exists")) {
             return Response.status(Response.Status.NOT_FOUND).entity(res).build();        
         } else if (res.startsWith("You are not the Team Leader of this board, access denied")) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
         } else {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(res).build();
         }
     }
 	
@@ -90,7 +90,7 @@ public class BoardController {
         } else if (res.equals("Please enter the username of the user you want to invite") || res.equals("Can't add yourself to the board")) {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
         } else {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(res).build();
         }
     }
 	
