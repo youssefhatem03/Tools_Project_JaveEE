@@ -1,6 +1,7 @@
 package Model;
 import javax.persistence.*;
 
+import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
 import javax.validation.constraints.NotNull;
@@ -30,6 +31,10 @@ public class CardModel {
 	
 	@Column
 	private String assignee;
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	@JsonIgnore
+	private List<String> commentors;
 	
 	@ManyToOne
 	@JoinColumn(name="listId")
@@ -86,4 +91,12 @@ public class CardModel {
     	return this.assignee;
     }
 	
+    public void setCommentors(List<String> commentors) {
+    	this.commentors = commentors;
+    }
+    
+    public List<String> getCommentors(){
+    	return this.commentors;
+    }
+    
 }

@@ -37,12 +37,16 @@ public class CardController {
             return Response.status(Response.Status.NOT_FOUND).entity(res).build();
 		} else if (res.startsWith("This card is already in this list")) {
             return Response.status(Response.Status.CONFLICT).entity(res).build(); 
+		} else if (res.startsWith("You are not a collaborator or in board")) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
 		
 		
 	}
+	
+	
 	
 	
 	@GET
@@ -55,6 +59,8 @@ public class CardController {
 		}
 		
 	}
+	
+	
 	
 	
 	@PUT
@@ -73,6 +79,9 @@ public class CardController {
             return Response.status(Response.Status.NOT_FOUND).entity(res).build();	
 		} else if (res.startsWith("this user is already assigned to this card")) {
             return Response.status(Response.Status.CONFLICT).entity(res).build(); 
+		} else if (res.startsWith("assignee is not a collaborator in board")) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
+
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
@@ -94,6 +103,8 @@ public class CardController {
             return Response.status(Response.Status.NOT_FOUND).entity(res).build();		
 		} else if (res.startsWith("Card already exists in this list")) {
             return Response.status(Response.Status.CONFLICT).entity(res).build(); 
+		} else if (res.startsWith("You are not a collaborator in board")) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
@@ -113,6 +124,8 @@ public class CardController {
 			return Response.ok(res).build();
 		} else if (res.contains("does not exist")) {
             return Response.status(Response.Status.NOT_FOUND).entity(res).build();		
+		} else if (res.startsWith("You are not a collaborator in board")) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}
@@ -131,6 +144,8 @@ public class CardController {
 			return Response.ok(res).build();
 		} else if (res.contains("does not exist")) {
             return Response.status(Response.Status.NOT_FOUND).entity(res).build();		
+		} else if (res.startsWith("You have no access to this board")) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
 		} else {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
 		}

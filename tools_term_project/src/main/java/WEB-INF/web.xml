@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+    <!-- Define security constraints -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Protected Resources</web-resource-name>
+            <url-pattern>/api/*</url-pattern>
+            <!-- Specify URL patterns that require authentication -->
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>TeamLeader</role-name>
+            <!-- Only users in 'TeamLeader' role can access /api/* -->
+        </auth-constraint>
+    </security-constraint>
+
+    <!-- Define security roles -->
+    <security-role>
+        <role-name>TeamLeader</role-name>
+        <!-- Define application-specific role names -->
+    </security-role>
+    <security-role>
+        <role-name>Collaborator</role-name>
+        <!-- Define additional roles as needed -->
+    </security-role>
+
+    <!-- Configure login configuration -->
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <realm-name>MyRealm</realm-name>
+        <form-login-config>
+            <form-login-page>/login.jsp</form-login-page>
+            <form-error-page>/login-error.jsp</form-error-page>
+        </form-login-config>
+    </login-config>
+
+    <!-- Map security roles to users or groups -->
+    <security-role-mapping>
+        <role-name>TeamLeader</role-name>
+        <principal-name>teamleader1</principal-name>
+        <!-- Map 'TeamLeader' role to 'teamleader1' user -->
+    </security-role-mapping>
+    <security-role-mapping>
+        <role-name>Collaborator</role-name>
+        <principal-name>collaborator1</principal-name>
+        <!-- Map 'Collaborator' role to 'collaborator1' user -->
+    </security-role-mapping>
+
+</web-app>

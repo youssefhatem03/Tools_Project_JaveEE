@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import Messaging.JMSClient;
 import Model.BoardModel;
 import Model.ListModel;
 import Model.UserModel;
@@ -19,6 +21,8 @@ public class ListService {
     @PersistenceContext(unitName = "hello")
     private EntityManager EM;
 
+    @Inject
+    JMSClient jmsclient;
     
     public List<ListModel> getAllLists() {
         return EM.createQuery("SELECT l FROM ListModel l", ListModel.class).getResultList();
@@ -65,6 +69,14 @@ public class ListService {
 			listNames.add(newList.getListName());
 			board.setListNames(listNames);
 			
+			
+            String msg = "- Message for " + UserService.username + " : " + listName + " Added within " + boardName;
+;
+            
+            jmsclient.sendMessage(msg);    	    
+
+			
+			
 			EM.merge(board);
 			return "List added successfully";
 			
@@ -89,6 +101,12 @@ public class ListService {
 					.createQuery("SELECT b FROM BoardModel b WHERE b.boardName = :boardName", BoardModel.class)
 					.setParameter("boardName", boardName).getSingleResult();
 			
+            ListModel list =  EM.createQuery(                    
+            		"SELECT l FROM ListModel l " +
+                            "WHERE l.listName = :listName AND l.boardName = :boardName", ListModel.class)
+                     .setParameter("listName", listName).setParameter("boardName", boardName)
+                     .getSingleResult();
+			
 			if (board.getBoardName() == null || board.getBoardName().isEmpty()) {
 				return "Board does not exist";
 			}
@@ -103,7 +121,6 @@ public class ListService {
 			
 			ListModel newList = new ListModel();
 			newList.setListName(listName);
-			EM.remove(newList);
 			
 			Set<ListModel> lists;
 			lists = board.getLists();
@@ -115,6 +132,14 @@ public class ListService {
 			listNames.remove(newList.getListName());
 			board.setListNames(listNames);
 			
+
+			
+            String msg = "- Message for " + UserService.username + " : " +  listName + " Deleted";
+;
+            
+            jmsclient.sendMessage(msg);    	    
+    		
+			EM.remove(list);
 			EM.merge(board);
 			return "List deleted successfully";
 			

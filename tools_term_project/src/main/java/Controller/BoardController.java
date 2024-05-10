@@ -89,6 +89,8 @@ public class BoardController {
             return Response.status(Response.Status.CONFLICT).entity(res).build(); 
         } else if (res.equals("Please enter the username of the user you want to invite") || res.equals("Can't add yourself to the board")) {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
+        } else if (res.startsWith("You are not the Team Leader of this board, access denied")) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity(res).build();
         }

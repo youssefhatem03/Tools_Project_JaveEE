@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import Messaging.JMSClient;
 import Model.BoardModel;
 import Model.CardModel;
 import Model.ListModel;
@@ -20,7 +22,8 @@ public class CardService {
     @PersistenceContext(unitName = "hello")
     private EntityManager EM;
 	
-    
+    @Inject
+    JMSClient jmsclient;
     
     public List<CardModel> getAll() {
         return EM.createQuery("SELECT c FROM CardModel c", CardModel.class).getResultList();
@@ -76,6 +79,12 @@ public class CardService {
 			card.setCardName(cardName);
 			card.setListName(listName);
 		
+			
+		String msg= "- Message for " + UserService.username + " : " + "Added Card " + cardName + " to list " + listName + " Successfully";
+		jmsclient.sendMessage(msg);
+
+			
+			
 			
 			EM.persist(card);
 			EM.merge(list);
@@ -148,10 +157,10 @@ public class CardService {
       		if(board.getTeamLeader() == userName) {
       			return "cannot assign cards to the team leader";
       		}
-//      		
-//     		if (!board.getCollaboratorsUsernames().contains(UserService.username)) {
-//      			return "You are not a collaborator or in board: " + board.getBoardName(); 
-//      		}    
+      		
+     		if (!board.getCollaboratorsUsernames().contains(UserService.username)) {
+      			return "You are not a collaborator or in board: " + board.getBoardName(); 
+      		}    
       		
       		if (!board.getCollaboratorsUsernames().contains(userName)) {
       			return "assignee is not a collaborator in board " + board.getBoardName(); 
@@ -159,6 +168,32 @@ public class CardService {
       		
       		card.setAssignee(user.getUserName());
 
+      	
+      		
+            List<String> commentors;
+            commentors = card.getCommentors();
+            
+            if (card.getCommentors().contains(UserService.username)) {
+                for (int i = 0; i < commentors.size(); i++) {
+                    String msg= "- Message for " + commentors.get(i) + " : " + cardName + " Has Been Assigned to " + userName;
+                    jmsclient.sendMessage(msg);         	
+                }
+            } else {
+                commentors.add(UserService.username);
+                card.setCommentors(commentors);            
+                for (int i = 0; i < commentors.size(); i++) {
+                    String msg= "- Message for " + commentors.get(i) + " : " + cardName + " Has Been Assigned to " + userName;
+                    jmsclient.sendMessage(msg);         	
+                }
+            }
+            
+      		
+
+            
+            String msg2= "- Message for " + userName + " : " + cardName + " Has Been Assigned to you";
+            jmsclient.sendMessage(msg2);
+
+      		
       		EM.merge(card);
             
             return "Added " + userName +" successfully";
@@ -228,7 +263,9 @@ public class CardService {
             	return "card does not exist";
             }
       		
-            
+            if (!board.getCollaboratorsUsernames().contains(UserService.username)) {
+            	return "You are not a collaborator in board: " + board.getBoardName();
+            }
             
             if(!board.getListNames().contains(listName)) {
             	return "list: " + listName + " does not exist in board: " + boardName; 
@@ -246,11 +283,36 @@ public class CardService {
             	return "Card already exists in this list";
             }
             
+            
+            
             card.setListName(newListName);
             card.setList(newList);
             list.getCardNames().remove(cardName);
             newList.getCardNames().add(cardName);
             
+            
+            
+            
+            List<String> commentors;
+            commentors = card.getCommentors();
+            
+            if (card.getCommentors().contains(UserService.username)) {
+                for (int i = 0; i < commentors.size(); i++) {
+                    String msg = "- Message for " + commentors.get(i) + " : " + listName + " Has Been Changed to "+ newListName;
+                    jmsclient.sendMessage(msg);         	
+                }
+            } else {
+                commentors.add(UserService.username);
+                card.setCommentors(commentors);            
+                for (int i = 0; i < commentors.size(); i++) {
+                    String msg = "- Message for " + commentors.get(i) + " : " + listName + " Has Been Changed to "+ newListName;
+                    jmsclient.sendMessage(msg);         	
+                }
+            }
+            
+
+                       
+
             EM.merge(card);
             EM.merge(newList);
             EM.merge(list);
@@ -261,7 +323,7 @@ public class CardService {
     		
     	} catch (Exception e) {
     	    e.printStackTrace(); 
-    	    return "Something went wrong: " + e.getMessage();
+    	    return "Board or list or card not found: " + e.getMessage();
     	    } 
     	
     	
@@ -304,6 +366,9 @@ public class CardService {
                      .setParameter("cardName", cardName)
                      .getSingleResult();
             
+            if (!board.getCollaboratorsUsernames().contains(UserService.username)) {
+            	return "You are not a collaborator in board: " + board.getBoardName();
+            }
             
             if(!board.getListNames().contains(listName)) {
             	return "list: " + listName + " does not exist in board: " + boardName; 
@@ -315,7 +380,28 @@ public class CardService {
             
             
             card.setCardDescription(desc);
-            EM.merge(card);
+            
+            
+            List<String> commentors;
+            commentors = card.getCommentors();
+            
+            if (card.getCommentors().contains(UserService.username)) {
+                for (int i = 0; i < commentors.size(); i++) {
+                    String msg= "- Message for " + commentors.get(i) + " : " + desc + cardName + " Has Been Added to " + cardName + " As a Description";
+                    jmsclient.sendMessage(msg);         	
+                }
+            } else {
+                commentors.add(UserService.username);
+                card.setCommentors(commentors);            
+                for (int i = 0; i < commentors.size(); i++) {
+                    String msg= "- Message for " + commentors.get(i) + " : " + desc + cardName + " Has Been Added to " + cardName + " As a Description";
+                    jmsclient.sendMessage(msg);         	
+                }
+            }
+            
+            
+
+            
             
             return "Description added";
             
@@ -324,7 +410,7 @@ public class CardService {
     		
     	} catch (Exception e) {
     	    e.printStackTrace(); 
-    	    return "Something went wrong: " + e.getMessage();
+    	    return "Board or list or card not found: " + e.getMessage();
     	    } 
     	
     	
@@ -367,6 +453,7 @@ public class CardService {
                      .setParameter("cardName", cardName)
                      .getSingleResult();
 
+
             
             if (!board.getCollaboratorsUsernames().contains(UserService.username) && !board.getTeamLeader().equals(UserService.username)) {
             	return "You have no access to this board";
@@ -382,11 +469,36 @@ public class CardService {
             	return "card does not exist in this list: " + listName;
             }
             
+
+            
+            String newComment = UserService.username.toString() + " : "+ comment;
+            
+            
             
             Set<String> comments = card.getComments();
-            comments.add(comment);
-            
+            comments.add(newComment);
             card.setComments(comments);
+            
+            
+            
+            
+            List<String> commentors;
+            commentors = card.getCommentors();
+            
+            if (card.getCommentors().contains(UserService.username)) {
+                for (int i = 0; i < commentors.size(); i++) {
+                    String msg = "- Message for " + commentors.get(i) + " : " + UserService.username +  " added a comment: " + comment + " to " + cardName;
+                    jmsclient.sendMessage(msg);         	
+                }
+            } else {
+                commentors.add(UserService.username);
+                card.setCommentors(commentors);            
+                for (int i = 0; i < commentors.size(); i++) {
+                    String msg = "- Message for " + commentors.get(i) + " : " + UserService.username +  " added a comment: " + comment + " to " + cardName;
+                    jmsclient.sendMessage(msg);         	
+                }
+            }
+            
             EM.merge(card);
             
             return "Comment added";
@@ -394,7 +506,7 @@ public class CardService {
                 		
     	} catch (Exception e) {
     	    e.printStackTrace(); 
-    	    return "Something went wrong: " + e.getMessage();
+    	    return "Board or list or card not found: " + e.getMessage();
     	    } 
     	
     	

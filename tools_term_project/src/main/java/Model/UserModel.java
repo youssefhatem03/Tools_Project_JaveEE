@@ -5,6 +5,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.ejb.Stateless;
@@ -38,6 +39,10 @@ public class UserModel {
 	@JoinColumn(name="boardId")
 	private BoardModel board;
 	
+	@ElementCollection(fetch = FetchType.EAGER)
+    List<String> NotificationCenter;
+
+
 	
 	public UserModel(){}
 	
@@ -80,6 +85,16 @@ public class UserModel {
         this.password = password ;
     }
 
-    
+    public void setNotification(List<String> notification) {
+        this.NotificationCenter = notification ;
+    }
+
+    public  List<String> getNotifications(){
+        return this.NotificationCenter;
+    }
+
+    public void addNotification(String msg) {
+        this.NotificationCenter.add(msg);
+    }
 
 }

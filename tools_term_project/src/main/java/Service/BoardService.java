@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.ejb.EJBContext;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -12,6 +15,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import Controller.UserController;
+import Messaging.JMSClient;
 import Model.BoardModel;
 import Model.ListModel;
 import Model.UserModel;
@@ -19,38 +23,56 @@ import Model.UserModel;
 @Stateless
 public class BoardService {
 
-	
+	@Resource
+    EJBContext context;
 	
     @PersistenceContext(unitName = "hello")
     private EntityManager EM;
 
+    @Inject
+    JMSClient jmsclient;
+    
     
     public String createBoard(BoardModel board) {
-        String boardName = board.getBoardName();
-        String teamLeader = board.getTeamLeader();
+    	
+    	//if (context.isCallerInRole("TeamLeader")) {
+    		    		
+    	     String boardName = board.getBoardName();
+    	     String teamLeader = board.getTeamLeader();
 
-        try {
-            if (boardName.isEmpty()) {
-                return "Board Name cannot be empty";
-            }
+    	        try {
+    	            if (boardName.isEmpty()) {
+    	                return "Board Name cannot be empty";
+    	            }
 
-            if (teamLeader.isEmpty()) {
-                return "You must be signed in to create a board!";
-            }
+    	            if (teamLeader.isEmpty()) {
+    	                return "You must be signed in to create a board!";
+    	            }
 
-            if (isBoardNameExists(boardName)) {
-                return "Board Name already exists!";
-            }
-
-            board.setBoardName(boardName);
-            board.setTeamLeader(teamLeader);
-
-            EM.persist(board);
-            return "Board added successfully!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Failed to add board: " + e.getMessage();
-        }
+    	            if (isBoardNameExists(boardName)) {
+    	                return "Board Name already exists!";
+    	            }
+    	            board.setBoardName(boardName);
+    	            board.setTeamLeader(teamLeader);
+    	            
+    	            
+    	            String msg = "- Message for " + UserService.username + " : " + boardName + " Has Been Created By "+ teamLeader;
+    	            
+    	            jmsclient.sendMessage(msg);    	    
+    	            
+    	            EM.persist(board);
+    	            
+    	            return "Board added successfully!";
+    	        } catch (Exception e) {
+    	            e.printStackTrace();
+    	            return "Failed to add board: " + e.getMessage();
+    	        } 
+    		
+//    	} else {
+//    	            return "Unauthorized user.";
+//    	        }
+//    	
+   
     }
 
     
@@ -117,6 +139,13 @@ public class BoardService {
 					return "You are not the Team Leader of this board, access denied";
 				}
 
+				
+	            String msg = "- Message for " + UserService.username + " : " + boardName + " Has Been Deleted";
+;
+	            
+	            jmsclient.sendMessage(msg);    	    
+			
+				
 				EM.remove(board);
 				return "Board deleted succesfully";
 
@@ -178,6 +207,12 @@ public class BoardService {
 			usernames = board.getCollaboratorsUsernames();
 			usernames.add(user.getUserName());
 			board.setCollaboratorsUsernames(usernames);
+			
+
+            String msg = "- Message for " + UserService.username + " : " + "Collaborator " + userName + " added successfully to board " + boardName;
+            
+            jmsclient.sendMessage(msg);    	    
+ 		
 			
 			EM.merge(board);
             return "Collaborator " + userName + " added successfully to board " + boardName;
